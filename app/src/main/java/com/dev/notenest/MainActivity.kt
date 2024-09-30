@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
         }
     }
 
-    override fun onEditNoteClicked(note: Note) {
+    override fun onNoteClicked(note: Note) {
         // Create an Intent to launch CreateNoteActivity for editing the note
         val intent = Intent(this, CreateNoteActivity::class.java).apply {
             putExtra("note_id", note.id)
@@ -179,6 +179,4 @@ class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes)
     }
-
-
 }
