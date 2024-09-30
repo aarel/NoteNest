@@ -12,7 +12,7 @@ class NotesAdapter(
 ) : RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
     interface NoteItemListener {
-        fun onEditNoteClicked(note: Note)
+        fun onNoteClicked(note: Note)
         fun onDeleteSelectedNotes(selectedNotes: List<Note>)
     }
 
@@ -30,6 +30,10 @@ class NotesAdapter(
             R.string.note_timestamp,
             note.timestamp
         )
+
+        holder.itemView.setOnClickListener {
+            listener.onNoteClicked(note) // Call listener when a note is clicked
+        }
     }
 
     override fun getItemCount(): Int = notes.size
