@@ -1,5 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.NoteNest" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize primary, secondary, and background colors -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorOnPrimary">@color/white</item> <!-- Text color on primary background -->
+
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/white</item> <!-- Text color on secondary background -->
+
+        <!-- Background and text colors -->
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:background">@color/backgroundColor</item>
+
+        <!-- Status Bar and Navigation Bar Colors -->
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+    </style>
+
 </resources>

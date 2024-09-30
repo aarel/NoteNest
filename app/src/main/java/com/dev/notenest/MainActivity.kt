@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.snackbar.Snackbar
+
 
 class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
 
@@ -37,18 +39,30 @@ class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
         recyclerViewNotes.adapter = notesAdapter
 
         // Register ActivityResultLauncher
+// Register ActivityResultLauncher for both creating and editing notes
         createNoteLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
+                val id = result.data?.getLongExtra("note_id", -1) ?: -1L
                 val title = result.data?.getStringExtra("note_title") ?: ""
                 val content = result.data?.getStringExtra("note_content") ?: ""
 
-                // Insert the new note into the database and list
-                val newNoteId = databaseHelper.insertNote(title, content)
-                val newNote = Note(newNoteId, title, content, System.currentTimeMillis().toString())
-                notesList.add(newNote)
-                notesAdapter.notifyItemInserted(notesList.size - 1)  // Notify adapter about the new note
+                if (id == -1L) {
+                    // This is a new note, insert it into the database
+                    val newNoteId = databaseHelper.insertNote(title, content)
+                    val newNote = Note(newNoteId, title, content, NoteDatabaseHelper.getCurrentTimestamp())  // Use formatted timestamp
+                    notesList.add(newNote)
+                    notesAdapter.notifyItemInserted(notesList.size - 1)
+                } else {
+                    // This is an existing note, update it in the database
+                    databaseHelper.updateNote(id, title, content)
+                    val note = notesList.find { it.id == id }
+                    note?.title = title
+                    note?.content = content
+                    note?.timestamp = NoteDatabaseHelper.getCurrentTimestamp()  // Set formatted timestamp
+                    notesAdapter.notifyItemChanged(notesList.indexOf(note))
+                }
             }
         }
 
@@ -66,17 +80,29 @@ class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
     }
 
     private fun loadNotesFromDatabase() {
-        val currentListSize = notesList.size  // Get the current size of the list
-        val newNotes = databaseHelper.getAllNotes()  // Fetch all notes from the database
+        val newNotes = databaseHelper.getAllNotes()
 
-        // Clear the old notes and add the new notes from the database
-        notesList.clear()
-        notesList.addAll(newNotes)
-
-        // Notify the adapter that new items were inserted
-        notesAdapter.notifyItemRangeInserted(0, notesList.size - currentListSize)
+        if (notesList.isEmpty()) {
+            // If the list is initially empty, add all notes
+            notesList.addAll(newNotes)
+            notesAdapter.notifyItemRangeInserted(0, newNotes.size)
+        } else {
+            // If the list already has items, compare and update
+            for (i in newNotes.indices) {
+                if (i < notesList.size) {
+                    // Update existing notes
+                    if (notesList[i] != newNotes[i]) {
+                        notesList[i] = newNotes[i]
+                        notesAdapter.notifyItemChanged(i)
+                    }
+                } else {
+                    // Insert new notes
+                    notesList.add(newNotes[i])
+                    notesAdapter.notifyItemInserted(i)
+                }
+            }
+        }
     }
-
 
     override fun onEditNoteClicked(note: Note) {
         // Create an Intent to launch CreateNoteActivity for editing the note
@@ -120,28 +146,39 @@ class MainActivity : AppCompatActivity(), NotesAdapter.NoteItemListener {
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                return false  // We are not handling move events
+                return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // Get the position of the swiped note using bindingAdapterPosition
-                val position = viewHolder.bindingAdapterPosition  // Replaces deprecated adapterPosition
+                val position = viewHolder.bindingAdapterPosition
                 val noteToDelete = notesList[position]
 
-                // Remove the note from the database
-                databaseHelper.deleteNote(noteToDelete.id)
-
-                // Remove the note from the list and notify the adapter
+                // Remove the note from the list temporarily
                 notesList.removeAt(position)
                 notesAdapter.notifyItemRemoved(position)
 
-                // Optionally, show a toast to confirm deletion
-                Toast.makeText(this@MainActivity, "Note deleted", Toast.LENGTH_SHORT).show()
+                // Show a Snackbar with an undo option
+                val Snackbar = Snackbar.make(recyclerViewNotes, "Note deleted", Snackbar.LENGTH_LONG)
+                Snackbar.setAction("Undo") {
+                    // Reinsert the note if undo is pressed
+                    notesList.add(position, noteToDelete)
+                    notesAdapter.notifyItemInserted(position)
+                }
+                Snackbar.addCallback(object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        if (event != DISMISS_EVENT_ACTION) {
+                            // If the Snackbar is dismissed (not by clicking undo), delete from the database
+                            databaseHelper.deleteNote(noteToDelete.id)
+                        }
+                    }
+                })
+                Snackbar.show()
             }
         }
 
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes)
     }
+
 
 }
