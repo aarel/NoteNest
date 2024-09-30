@@ -2,6 +2,7 @@ package com.dev.notenest
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import java.text.SimpleDateFormat
@@ -18,6 +19,12 @@ class NoteDatabaseHelper(context: Context) :
         const val COLUMN_TITLE = "title"
         const val COLUMN_CONTENT = "content"
         const val COLUMN_TIMESTAMP = "timestamp"
+
+        // Function to get the current timestamp in MM/dd/YYYY HH:mm format
+        fun getCurrentTimestamp(): String {
+            val sdf = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
+            return sdf.format(Date())
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -38,21 +45,20 @@ class NoteDatabaseHelper(context: Context) :
         }
     }
 
-    // Function to get the current timestamp in MM/dd/YYYY HH:mm format
-    private fun getCurrentTimestamp(): String {
-        val sdf = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault())
-        return sdf.format(Date())
-    }
-
     // Insert a new note with a formatted timestamp
     fun insertNote(title: String, content: String): Long {
         val db = writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_TITLE, title)
             put(COLUMN_CONTENT, content)
-            put(COLUMN_TIMESTAMP, getCurrentTimestamp())  // Store the formatted timestamp
+            put(COLUMN_TIMESTAMP, getCurrentTimestamp())  // Use formatted timestamp
         }
-        return db.insert(TABLE_NAME, null, values)
+
+        return try {
+            db.insert(TABLE_NAME, null, values)
+        } catch (e: SQLException) {
+            -1L // Return -1 if insertion fails
+        }
     }
 
     // Update an existing note with a new timestamp
@@ -63,14 +69,28 @@ class NoteDatabaseHelper(context: Context) :
             put(COLUMN_CONTENT, content)
             put(COLUMN_TIMESTAMP, getCurrentTimestamp())  // Update with the new timestamp
         }
-        return db.update(TABLE_NAME, values, "$COLUMN_ID = ?", arrayOf(id.toString()))
+
+        return try {
+            db.update(TABLE_NAME, values, "$COLUMN_ID = ?", arrayOf(id.toString()))
+        } catch (e: SQLException) {
+            0 // Return 0 if update fails
+        }
     }
 
-    // Get all notes
+    // Get all notes (Optimize by selecting only the needed columns)
     fun getAllNotes(): List<Note> {
         val db = readableDatabase
-        val cursor = db.query(TABLE_NAME, null, null, null, null, null, "$COLUMN_TIMESTAMP DESC")
         val notes = mutableListOf<Note>()
+        val cursor = db.query(
+            TABLE_NAME,
+            arrayOf(COLUMN_ID, COLUMN_TITLE, COLUMN_CONTENT, COLUMN_TIMESTAMP), // Specify columns to retrieve
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_TIMESTAMP DESC"
+        )
+
         while (cursor.moveToNext()) {
             val id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID))
             val title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE))
@@ -82,9 +102,13 @@ class NoteDatabaseHelper(context: Context) :
         return notes
     }
 
-    // Delete a note
+    // Delete a note with error handling
     fun deleteNote(id: Long): Int {
         val db = writableDatabase
-        return db.delete(TABLE_NAME, "$COLUMN_ID = ?", arrayOf(id.toString()))
+        return try {
+            db.delete(TABLE_NAME, "$COLUMN_ID = ?", arrayOf(id.toString()))
+        } catch (e: SQLException) {
+            0 // Return 0 if deletion fails
+        }
     }
 }

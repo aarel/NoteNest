@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">NoteNest</string>
     <string name="note_timestamp">Last edited: %1$s</string>
+    <string name="add_note_description">Add a new note</string>
+    <string name="enter_note_content">Enter note content</string>
+    <string name="enter_note_title">Enter note title</string>
+    <string name="save">Save</string>
+    <string name="sample_title">Sample Title</string>
+    <string name="last_edited_timestamp">Last edited: [Timestamp]</string>
+    <string name="todo">TODO</string>
 </resources>

@@ -5,43 +5,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     tools:context=".CreateNoteActivity">
 
-    <!-- Title input field -->
-    <EditText
-        android:id="@+id/editTextTitle"
+    <!-- Title input field wrapped in TextInputLayout -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter note title"
-        android:textSize="18sp"
+        android:hint="@string/enter_note_title"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        android:layout_marginBottom="16dp">
 
-    <!-- Content input field -->
-    <EditText
-        android:id="@+id/editTextContent"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:textSize="18sp"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Content input field wrapped in TextInputLayout -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Enter note content"
-        android:gravity="top"
-        app:layout_constraintTop_toBottomOf="@id/editTextTitle"
-        app:layout_constraintBottom_toTopOf="@id/buttonSave"
+        android:hint="@string/enter_note_content"
+        app:layout_constraintTop_toBottomOf="@id/textInputTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"
-        android:inputType="textMultiLine"
-        android:minLines="10"/>
+        app:layout_constraintBottom_toTopOf="@id/buttonSave"
+        android:layout_marginBottom="16dp"
+        android:minHeight="200dp">
 
-    <!-- Save button properly positioned above the navigation bar -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="10"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Save button styled with the custom button style -->
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="@string/save"
+        android:backgroundTint="#3700B3"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+

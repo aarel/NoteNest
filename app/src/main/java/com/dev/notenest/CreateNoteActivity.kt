@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class CreateNoteActivity : AppCompatActivity() {
@@ -39,6 +40,14 @@ class CreateNoteActivity : AppCompatActivity() {
             val noteTitle = editTextTitle.text.toString()
             val noteContent = editTextContent.text.toString()
 
+            // Check if the title is empty
+            if (noteTitle.isEmpty()) {
+                // Show a message and prevent saving
+                Toast.makeText(this, "Title cannot be empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener  // Exit early
+            }
+
+            // If the title is not empty, proceed with saving the note
             val resultIntent = Intent().apply {
                 putExtra("note_id", noteId)
                 putExtra("note_title", noteTitle)

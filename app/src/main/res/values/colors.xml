@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Colors -->
+    <color name="primaryColor">#3700B3</color>       <!-- Main color for toolbar, buttons, etc. -->
+    <color name="primaryLightColor">#BB86FC</color>  <!-- Light variant of primary -->
+    <color name="primaryDarkColor">#3700B3</color>   <!-- Dark variant of primary -->
+
+    <!-- Secondary Colors -->
+    <color name="secondaryColor">#03DAC5</color>     <!-- Accent color -->
+
+    <!-- Background and Text Colors -->
+    <color name="backgroundColor">#FFFFFF</color>    <!-- Background color -->
+    <color name="textColor">#000000</color>          <!-- Main text color -->
+
+    <!-- Status Bar and Navigation Bar Colors -->
+    <color name="statusBarColor">#3700B3</color>     <!-- Status bar color -->
+    <color name="navigationBarColor">#6200EE</color> <!-- Navigation bar color -->
+
+    <!-- Original Colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
